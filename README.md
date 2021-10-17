@@ -1,2 +1,2 @@
 # jadeassistant
-The repository for the Jade Assistant.
+The repository for the Jade Assistant. BETA

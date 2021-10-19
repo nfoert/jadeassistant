@@ -1,5 +1,0 @@
-https://github.com/nfoert/jadeassistant/blob/main/assets/JadeLogo.png
-https://github.com/nfoert/jadeassistant/blob/main/assets/desktopEditionLogo.png
-https://github.com/nfoert/jadeassistant/blob/main/assets/hoverStart.png
-https://github.com/nfoert/jadeassistant/blob/main/assets/mainPic.png
-https://github.com/nfoert/jadeassistant/blob/main/assets/start.png

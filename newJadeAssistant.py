@@ -47,11 +47,11 @@ WolframAlphaClient = wolframalpha.Client(WolframAppId)
 
 
 # Variables
-version_MAJOR = 0
+version_MAJOR = 1
 version_MINOR = 0
-version_PATCH = 4
+version_PATCH = 0
 version_TOTAL = f"{version_MAJOR}.{version_MINOR}.{version_PATCH}"
-developmental = True
+developmental = False
 
 speakLoopList = []
 
@@ -136,11 +136,16 @@ class AppPaths:
 
             elif app in appPaths:
                 try:
-                    ASSISTANTFuncs.respond(f"Opening {app}...")
-                    subprocess.Popen(PurePath(appPaths[app]))
+                    if platform.system() == "Windows":
+                        ASSISTANTFuncs.respond(f"Opening {app}...")
+                        subprocess.Popen(PurePath(appPaths[app]))
+
+                    elif platform.system() == "Darwin":
+                        ASSISTANTFuncs.respond(f"Opening {app}...")
+                        subprocess.call(["open", f"{PurePath(appPaths[app])}"])
                 
-                except:
-                    ASSISTANTFuncs.respond(f"There was a problem opening app '{app}'")
+                except Exception as e:
+                    ASSISTANTFuncs.respond(f"There was a problem opening app '{app}' {e}")
 
             else:
                 ASSISTANTFuncs.respond("I couldnt find that app. Add an app by entering 'add app'.")
@@ -320,8 +325,12 @@ class MAINFuncs:
 
         print(f"Running Jade Engine with input '{engineInput}'")
         ASSISTANTFuncs.youSaid(engineInput)
-        engineInput = engineInput.lower()
-        EI = engineInput
+        if youLastSaid == "addApp1" or "open" in engineInput:
+            EI = engineInput
+
+        else:
+            engineInput = engineInput.lower()
+            EI = engineInput
 
         # The ultimate conditionals
         
@@ -343,7 +352,7 @@ class MAINFuncs:
             ASSISTANTFuncs.respond("My birthday is February twenty-third.")
 
         elif ASSISTANTFuncs.containsAny(EI, ["info", "about"]) == True:
-            ASSISTANTFuncs.respond("My name is Jade and i'm a Virtual Assistant for your computer's desktop. I'm written in the Python Programming Language and converted to an executable file by PyInstaller. My goal is to be as helpful as possible. I was made by a teenager and I was first created on February 23, 2021. This current version was created April-May 2022.")
+            ASSISTANTFuncs.respond("My name is Jade and i'm a Virtual Assistant for your computer's desktop. I'm written in the Python Programming Language and converted to an executable file by PyInstaller. My goal is to be as helpful as possible. I was made by a teenager and I was first created on February 23, 2021. The current iteration of me was created April-May 2022.")
             ASSISTANTFuncs.respond("Enter 'jade website' to view my inter-web space.")
         
         elif ASSISTANTFuncs.containsAny(EI, ["thanks", "thank you"]) == True:
@@ -401,6 +410,10 @@ class MAINFuncs:
         elif ASSISTANTFuncs.containsAny(EI, ["open", "open app"]) == True:
             EI = EI.replace("open ", "")
             EI = EI.replace("open app ", "")
+            if platform.system() == "Darwin":
+                EI = EI.capitalize()
+
+            
             AppPaths.openApp(EI)
 
         elif ASSISTANTFuncs.containsAny(EI, ["add app", "add path"]) == True:
@@ -416,11 +429,25 @@ class MAINFuncs:
             
         elif youLastSaid == "addApp1":
             addAppName = EI
-            youLastSaid = "addApp2"
-            ASSISTANTFuncs.respond("Got it. Now enter the file location of that app. ('cancel' to quit)")
-            window_main.input.setPlaceholderText("Enter file location of app")
-            window_medium.input.setPlaceholderText("Enter file location of app")
-            window_small.input.setPlaceholderText("Enter file location of app")
+
+            if platform.system() == "Windows":
+                youLastSaid = "addApp2"
+                ASSISTANTFuncs.respond("Got it. Now enter the file location of that app. ('cancel' to quit)")
+                window_main.input.setPlaceholderText("Enter file location of app")
+                window_medium.input.setPlaceholderText("Enter file location of app")
+                window_small.input.setPlaceholderText("Enter file location of app")
+
+            elif platform.system() == "Darwin":
+                if ".app" in addAppName:
+                    addAppName = addAppName.replace(".app", "")
+
+                else:
+                    addAppName = addAppName
+
+                appPaths[addAppName] = f"/Applications/{addAppName}.app"
+                AppPaths.savePaths(appPaths)
+                ASSISTANTFuncs.respond(f"I added the app {addAppName}")
+                youLastSaid = ""
             
         elif youLastSaid == "addApp2":
             addAppPath = EI
@@ -461,16 +488,16 @@ class MAINFuncs:
         elif ASSISTANTFuncs.containsAny(EI, ["wikipedia"]) == True:
             EI = EI.replace("wikipedia", "")
             try:
-                fullWikiPageContent = wikiPage.content
-                wikiPage = wikipedia.page(EI)
-                ASSISTANTFuncs.respond(f"Now reading you the page for {wikiPage.title}.")
-                ASSISTANTFuncs.respond(f"{wikiPage.content}")
-                ASSISTANTFuncs.respond("Read more by entering 'read more'.")
+                suggest = wikipedia.suggest(EI)
+                wikiPage = wikipedia.summary(suggest)
+                ASSISTANTFuncs.respond(f"Now reading you the summary for page '{suggest}'.")
+                ASSISTANTFuncs.respond(wikiPage)
+                
 
             except:
                 ASSISTANTFuncs.respond("I couldn't find that page.")
             
-        elif ASSISTANTFuncs.containsAny(EI, ["help"]) == True:
+        elif ASSISTANTFuncs.containsAny(EI, ["help"]) == True or ASSISTANTFuncs.containsAll(EI, ["what", "can", "you", "do"]) == True:
             ASSISTANTFuncs.respond("Here's what I can help you with:")
             ASSISTANTFuncs.respond('''
             I can open apps for you. 
@@ -496,6 +523,15 @@ class MAINFuncs:
                 - Enter 'help' to show all this again.
                 - Enter 'about' or 'info' to learn more about me.
                 - Enter 'clear' to clear the history list.
+                - Enter 'website [url]' and i'll open a site for you.
+            ''')
+            ASSISTANTFuncs.respond('''
+            You can change my size:
+                - Enter 'size normal' to change my size to normal
+                - Enter 'size medium' to change my size to medium
+                - Enter 'size small' to change my size to small
+                - Enter 'size mini' to change my size to mini
+                - Enter 'change size' to open the change size window
             ''')
             ASSISTANTFuncs.respond('''
             I have a few other important commands:
@@ -521,7 +557,10 @@ class MAINFuncs:
             youLastSaid = ""
             ASSISTANTFuncs.respond("Well I don't.")
 
-        elif ASSISTANTFuncs.containsAny(EI, ["no", "nope", "yes", "yeah", "yep"]) == True:
+        elif ASSISTANTFuncs.containsAny(EI, ["nope", "yes", "yeah", "yep"]) == True:
+            ASSISTANTFuncs.respondRandom(["Alright.", "Ok.", "Ok then.", "Okay."])
+
+        elif EI == "no":
             ASSISTANTFuncs.respondRandom(["Alright.", "Ok.", "Ok then.", "Okay."])
 
         elif ASSISTANTFuncs.containsAny(EI, ["ok", "okay"]) == True:
@@ -555,13 +594,13 @@ class MAINFuncs:
             ASSISTANTFuncs.respond("My creator is Noah Foertmeyer.")
 
         elif ASSISTANTFuncs.containsAll(EI, ["meaning", "of", "life"]) == True:
-            ASSISTANTFuncs.respond("I'm not authorized to share that information.")
+            ASSISTANTFuncs.respond("That's up to you to figure out.")
 
         elif ASSISTANTFuncs.containsAny(EI, ["sorry", "apologies"]) == True:
             ASSISTANTFuncs.respond("That's all right.")
 
-        elif ASSISTANTFuncs.containsAny(EI, ["launcher", "jade launcher", "open launcher", "open jade launcher"]) == True:
-            UIFuncs.openJadeLauncherAction()
+        #elif ASSISTANTFuncs.containsAny(EI, ["launcher", "jade launcher", "open launcher", "open jade launcher"]) == True:
+            #UIFuncs.openJadeLauncherAction()
 
         elif ASSISTANTFuncs.containsAny(EI, ["changelog"]) == True:
             ASSISTANTFuncs.respond("I'll take you to the changelog.")
@@ -571,8 +610,8 @@ class MAINFuncs:
             now = datetime.datetime.now()
             now = now.strftime("%I:%M %p")
             ASSISTANTFuncs.respond(f"It's {now}.")
-        
-        elif ASSISTANTFuncs.containsAny(EI, ["oh", "ohh", "uh", "um", "uhm"]) == True:
+
+        elif EI == "oh" or EI == "ohh" or EI == "uh" or EI == "um" or EI == "uhm":
             ASSISTANTFuncs.respond("...")
 
         elif ASSISTANTFuncs.containsAll(EI, ["me too"]) == True and youLastSaid == "thanks":
@@ -594,6 +633,38 @@ class MAINFuncs:
         elif ASSISTANTFuncs.containsAny(EI, ["sleep"]) == True:
             ASSISTANTFuncs.respond("I'll change my size to mini.")
             UIFuncs.miniSize()
+
+        elif ASSISTANTFuncs.containsAll(EI, ["size", "normal"]) == True:
+            ASSISTANTFuncs.respond("I'll change my size to normal.")
+            UIFuncs.normalSize()
+
+        elif ASSISTANTFuncs.containsAll(EI, ["size", "medium"]) == True:
+            ASSISTANTFuncs.respond("I'll change my size to medium.")
+            UIFuncs.mediumSize()
+
+        elif ASSISTANTFuncs.containsAll(EI, ["size", "small"]) == True:
+            ASSISTANTFuncs.respond("I'll change my size to small.")
+            UIFuncs.smallSize()
+
+        elif ASSISTANTFuncs.containsAll(EI, ["size", "mini"]) == True:
+            ASSISTANTFuncs.respond("I'll change my size to mini.")
+            UIFuncs.miniSize()
+
+        elif ASSISTANTFuncs.containsAll(EI, ["you're", "welcome"]) == True:
+            ASSISTANTFuncs.respond("...")
+
+        elif ASSISTANTFuncs.containsAny(EI, ["nice", "great"]) == True:
+            ASSISTANTFuncs.respond("Thanks.")
+
+        elif ASSISTANTFuncs.containsAny(EI, ["wow", "woah"]) == True:
+            ASSISTANTFuncs.respond("I know, right?")
+
+        elif ASSISTANTFuncs.containsAll(EI, ["see", "ya"]) == True:
+            ASSISTANTFuncs.respond("Goodbye.")
+        
+        elif ASSISTANTFuncs.containsAny(EI, ["change size", "choose size"]) == True:
+            ASSISTANTFuncs.respond("Please choose the size you want me to change to.")
+            UIFuncs.sizeButton()
         
         #If nothing else, hits wolfram alpha. This triggers the thread.
         else:
@@ -632,6 +703,7 @@ class THREADFuncs:
         global speakLoopList
         global killThreads
         while appActive == True:
+            sleep(0.2) # Stop the thread from stopping on size change
             if appActive == False:
                 print("Speak loop has quit.")
                 break
@@ -674,6 +746,7 @@ class THREADFuncs:
         global appActive
 
         while appActive == True:
+            sleep(0.2) # Stop the thread from stopping on size change
             if wolframInput != "":
                 
                 window_main.submit.setEnabled(False)
@@ -868,10 +941,10 @@ class UIFuncs:
         global size
         window_sizeSelect.hide()
         
-        window_main.show()
         window_medium.hide()
         window_small.hide()
         window_mini.hide()
+        window_main.show()
         
         size = 4
 
@@ -879,10 +952,10 @@ class UIFuncs:
         global size
         window_sizeSelect.hide()
         
-        window_main.hide()
         window_medium.show()
         window_small.hide()
         window_mini.hide()
+        window_main.hide()
 
         size = 3
 
@@ -890,10 +963,10 @@ class UIFuncs:
         global size
         window_sizeSelect.hide()
 
-        window_main.hide()
         window_medium.hide()
         window_small.show()
         window_mini.hide()
+        window_main.hide()
 
         size = 2
 
@@ -901,16 +974,17 @@ class UIFuncs:
         global size
         window_sizeSelect.hide()
 
-        window_main.hide()
         window_medium.hide()
         window_small.hide()
         window_mini.show()
+        window_main.hide()
 
         size = 1
 
     def expandFromMini():
-        window_mini.hide()
         window_sizeSelect.show()
+        window_mini.hide()
+
 
 
 
@@ -918,13 +992,11 @@ class UIFuncs:
 window_main.actionQuit.triggered.connect(UIFuncs.quit)
 window_main.info.hide()
 window_main.input.textChanged.connect(UIFuncs.checkForEditContents)
-window_main.menu.clicked.connect(UIFuncs.betaButton)
-window_main.version.setText(f"Version {version_TOTAL}")
-window_main.version.setAlignment(QtCore.Qt.AlignCenter)
-window_main.actionOpenJadeLauncher.triggered.connect(UIFuncs.openJadeLauncherAction)
+#window_main.menu.clicked.connect(UIFuncs.betaButton) Menu button removed
+#window_main.actionOpenJadeLauncher.triggered.connect(UIFuncs.openJadeLauncherAction)
 
-window_main.size.clicked.connect(UIFuncs.sizeButton)
-window_medium.size.clicked.connect(UIFuncs.sizeButton)
+window_main.actionChange_Size.triggered.connect(UIFuncs.sizeButton)
+#window_medium.size.clicked.connect(UIFuncs.sizeButton)
 window_small.size.clicked.connect(UIFuncs.sizeButton)
 
 window_main.submit.clicked.connect(UIFuncs.activateEngine)

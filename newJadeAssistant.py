@@ -49,7 +49,7 @@ WolframAlphaClient = wolframalpha.Client(WolframAppId)
 # Variables
 version_MAJOR = 1
 version_MINOR = 0
-version_PATCH = 0
+version_PATCH = 1
 version_TOTAL = f"{version_MAJOR}.{version_MINOR}.{version_PATCH}"
 developmental = False
 
@@ -352,7 +352,7 @@ class MAINFuncs:
             ASSISTANTFuncs.respond("My birthday is February twenty-third.")
 
         elif ASSISTANTFuncs.containsAny(EI, ["info", "about"]) == True:
-            ASSISTANTFuncs.respond("My name is Jade and i'm a Virtual Assistant for your computer's desktop. I'm written in the Python Programming Language and converted to an executable file by PyInstaller. My goal is to be as helpful as possible. I was made by a teenager and I was first created on February 23, 2021. The current iteration of me was created April-May 2022.")
+            ASSISTANTFuncs.respond("My name is Jade and i'm a Virtual Assistant for your computer's desktop. I'm written in the Python Programming Language and converted to an executable file by PyInstaller. My goal is to be as helpful as possible. I was first created on February 23, 2021. The current iteration of me was created April-May 2022.")
             ASSISTANTFuncs.respond("Enter 'jade website' to view my inter-web space.")
         
         elif ASSISTANTFuncs.containsAny(EI, ["thanks", "thank you"]) == True:
@@ -572,7 +572,7 @@ class MAINFuncs:
             window_small.listWidget.clear()
 
         elif ASSISTANTFuncs.containsAny(EI, ["jade website", "your website", "jade site", "your site"]) == True:
-            webbrowser.open("https://nofoert.wixsite.com/jade")
+            webbrowser.open("https://nfoert.pythonanywhere.com/jadesite")
 
         elif ASSISTANTFuncs.containsAny(EI, ["website", "site"]) == True:
             EI = EI.replace("website ", "")
@@ -593,9 +593,6 @@ class MAINFuncs:
         elif ASSISTANTFuncs.containsAll(EI, ["your", "creator"]) == True:
             ASSISTANTFuncs.respond("My creator is Noah Foertmeyer.")
 
-        elif ASSISTANTFuncs.containsAll(EI, ["meaning", "of", "life"]) == True:
-            ASSISTANTFuncs.respond("That's up to you to figure out.")
-
         elif ASSISTANTFuncs.containsAny(EI, ["sorry", "apologies"]) == True:
             ASSISTANTFuncs.respond("That's all right.")
 
@@ -603,8 +600,8 @@ class MAINFuncs:
             #UIFuncs.openJadeLauncherAction()
 
         elif ASSISTANTFuncs.containsAny(EI, ["changelog"]) == True:
-            ASSISTANTFuncs.respond("I'll take you to the changelog.")
-            webbrowser.open("https://nofoert.wixsite.com/jade/blog/categories/changelogs")
+            ASSISTANTFuncs.respond("I'll take you to the changelogs.")
+            webbrowser.open("https://nfoert.pythonanywhere.com/jadesite/allposts/?category=changelog&")
 
         elif ASSISTANTFuncs.containsAll(EI, ["what", "time"]) == True:
             now = datetime.datetime.now()
@@ -665,6 +662,13 @@ class MAINFuncs:
         elif ASSISTANTFuncs.containsAny(EI, ["change size", "choose size"]) == True:
             ASSISTANTFuncs.respond("Please choose the size you want me to change to.")
             UIFuncs.sizeButton()
+
+        elif ASSISTANTFuncs.containsAll(EI, ["how", "add", "apps"]) == True: #Thanks to mfoert
+            ASSISTANTFuncs.respond("I'll show you the tutorial on how to add apps")
+            webbrowser.open("https://nfoert.pythonanywhere.com/jadesite/post/?L:addAppJA&")
+
+        elif ASSISTANTFuncs.containsAny(EI, ["get out", "get off"]) == True: #Thanks to efoert
+            ASSISTANTFuncs.respond("Then why did you even install me, huh?")
         
         #If nothing else, hits wolfram alpha. This triggers the thread.
         else:

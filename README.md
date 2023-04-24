@@ -1,4 +1,4 @@
 # Jade Assistant
-The repository for the Jade Assistant. This repo will contain a versions file, the main .exe, and the assets.
+The repository for the Jade Assistant. This repo will contain the main executable and the assets.
 
-Jade Assistant is now in beta! https://nofoert.wixsite.com/jade/download
+Download Jade Assistant inside the [Jade Launcher](https://nfoert.pythonanywhere.com/jadesite/jadelauncher).

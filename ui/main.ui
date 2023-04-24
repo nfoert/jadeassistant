@@ -17,6 +17,20 @@
    <iconset resource="../assets.qrc">
     <normaloff>:/images/assets/jadeIcon.png</normaloff>:/images/assets/jadeIcon.png</iconset>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+	border-image: url(:/images/assets/background.png) 0 0 0 0 stretch stretch;
+}
+
+QMenuBar {
+	background-color: transparent;
+	color: white;
+}
+
+QStatusBar {
+	color:white;
+}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="2" column="0">
@@ -45,6 +59,12 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -58,6 +78,9 @@
         </property>
         <property name="accessibleName">
          <string>Enter text here</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">border-radius:10px</string>
         </property>
         <property name="placeholderText">
          <string>How can I help?</string>
@@ -110,8 +133,8 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>175</width>
-          <height>115</height>
+          <width>250</width>
+          <height>40</height>
          </size>
         </property>
         <property name="statusTip">
@@ -193,10 +216,49 @@
         <property name="font">
          <font>
           <family>Calibri</family>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
          </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+	background-color: rgb(0, 150, 80);
+	border-color: rgb(0, 255, 0);
+	border-radius: 10px;
+	font: 10pt &quot;Calibri&quot;;
+	
+	color: rgb(255, 255, 255);
+}
+
+QPushButton:hover {
+	background-color: rgb(0, 170, 100);
+}
+
+QPushButton:pressed {
+	
+	background-color: rgb(0, 200, 120);
+}</string>
         </property>
         <property name="text">
          <string>Submit</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="mute">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:white;</string>
+        </property>
+        <property name="text">
+         <string>Mute</string>
         </property>
        </widget>
       </item>
@@ -232,6 +294,9 @@
          <font>
           <family>Calibri</family>
          </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: white;</string>
         </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Loading...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -277,6 +342,12 @@
           <family>Calibri</family>
           <pointsize>11</pointsize>
          </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QListWidget {
+	background: transparent;
+}
+</string>
         </property>
         <property name="lineWidth">
          <number>1</number>

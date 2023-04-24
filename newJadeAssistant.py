@@ -16,42 +16,46 @@ from time import sleep
 import random
 import shelve
 import subprocess
-from pathlib import PurePath
+from pathlib import PurePath, Path
 import os
 import platform
 import webbrowser
+import win32com.client as wincl
 
 # Third party module imports
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import QTimer
-import pyttsx3
 import wolframalpha
 import wikipedia
 
 # Local imports
 import assets
 
-# Set up imports - pyttsx3
-pyttsx3Engine = pyttsx3.init()
-
-pyttsx3Voices = pyttsx3Engine.getProperty('voices') 
-pyttsx3Engine.setProperty('voice', pyttsx3Voices[1].id)
-
-pyttsx3Rate = pyttsx3Engine.getProperty('rate')
-pyttsx3Engine.setProperty("rate", 200)
+# Set up windows TTS
+# Thanks to Charlie's answer here https://stackoverflow.com/questions/31167967/python-3-4-text-to-speech-with-sapi
+speaker = wincl.Dispatch("SAPI.SpVoice")
+speaker_voices = speaker.GetVoices()
+speaker.Voice
+speaker.SetVoice(speaker_voices.Item(1))
+speaker.Rate = 2
 
 # Set up imports - wolframalpha
 WolframAppId = "RYYW2P-LGP527T87X"
 WolframAlphaClient = wolframalpha.Client(WolframAppId)
 
+# Detect if i'm an .exe or a .py
+# Thanks to https://pyinstaller.org/en/stable/runtime-information.html
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    developmental = False
+else:
+    developmental = True
 
 # Variables
-version_MAJOR = 1
+version_MAJOR = 2
 version_MINOR = 0
-version_PATCH = 1
+version_PATCH = 0
 version_TOTAL = f"{version_MAJOR}.{version_MINOR}.{version_PATCH}"
-developmental = False
 
 speakLoopList = []
 
@@ -76,6 +80,8 @@ killThreads = False
 
 size = 4
 
+TruePath = ""
+
 # ----------
 # Set up the resource manager
 # ----------
@@ -87,6 +93,18 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
+# Thanks to Soviut's Answer here: https://stackoverflow.com/questions/404744/determining-application-path-in-a-python-exe-generated-by-pyinstaller
+if developmental == False:
+    if getattr(sys, 'frozen', False):
+        application_path = os.path.dirname(sys.executable)
+
+    elif __file__:
+        application_path = os.path.dirname(__file__)
+
+    TruePath = os.path.join(application_path)
+    if platform.system() == "Windows":
+        TruePath = TruePath + "\\"
 
 # Starting prints
 print("---------------")
@@ -210,23 +228,26 @@ class ASSISTANTFuncs:
         window_main.listWidget.addItem("Loading...")
         count = window_main.listWidget.count()
         count = count - 1
-        window_main.listWidget.item(count).setBackground(QtGui.QColor("#A8C6AE"))
+        window_main.listWidget.item(count).setBackground(QtGui.QColor("#04BD6C"))
         window_main.listWidget.item(count).setForeground(QtGui.QColor("#FFFFFF"))
         window_main.listWidget.item(count).setText(f"      [Jade] {text}")
+        window_main.listWidget.scrollToBottom()
 
         window_medium.listWidget.addItem("Loading...")
         count = window_medium.listWidget.count()
         count = count - 1
-        window_medium.listWidget.item(count).setBackground(QtGui.QColor("#A8C6AE"))
+        window_medium.listWidget.item(count).setBackground(QtGui.QColor("#04BD6C"))
         window_medium.listWidget.item(count).setForeground(QtGui.QColor("#FFFFFF"))
         window_medium.listWidget.item(count).setText(f"      [Jade] {text}")
+        window_medium.listWidget.scrollToBottom()
 
         window_small.listWidget.addItem("Loading...")
         count = window_small.listWidget.count()
         count = count - 1
-        window_small.listWidget.item(count).setBackground(QtGui.QColor("#A8C6AE"))
+        window_small.listWidget.item(count).setBackground(QtGui.QColor("#04BD6C"))
         window_small.listWidget.item(count).setForeground(QtGui.QColor("#FFFFFF"))
         window_small.listWidget.item(count).setText(f"      [Jade] {text}")
+        window_small.listWidget.scrollToBottom()
 
         if speakLoopThread.is_alive() == True:
             jadeLastSaid = text.lower()
@@ -252,17 +273,20 @@ class ASSISTANTFuncs:
         window_main.listWidget.addItem(f"      [You] {text}")
         count = window_main.listWidget.count()
         count = count - 1
-        window_main.listWidget.item(count).setBackground(QtGui.QColor("#F4EBD0"))
+        window_main.listWidget.item(count).setBackground(QtGui.QColor("#FFFACA"))
+        window_main.listWidget.scrollToBottom()
 
         window_medium.listWidget.addItem(f"      [You] {text}")
         count = window_medium.listWidget.count()
         count = count - 1
-        window_medium.listWidget.item(count).setBackground(QtGui.QColor("#F4EBD0"))
+        window_medium.listWidget.item(count).setBackground(QtGui.QColor("#FFFACA"))
+        window_medium.listWidget.scrollToBottom()
 
         window_small.listWidget.addItem(f"      [You] {text}")
         count = window_small.listWidget.count()
         count = count - 1
-        window_small.listWidget.item(count).setBackground(QtGui.QColor("#F4EBD0"))
+        window_small.listWidget.item(count).setBackground(QtGui.QColor("#FFFACA"))
+        window_small.listWidget.scrollToBottom()
 
 
     def isGreeting(text):
@@ -352,7 +376,7 @@ class MAINFuncs:
             ASSISTANTFuncs.respond("My birthday is February twenty-third.")
 
         elif ASSISTANTFuncs.containsAny(EI, ["info", "about"]) == True:
-            ASSISTANTFuncs.respond("My name is Jade and i'm a Virtual Assistant for your computer's desktop. I'm written in the Python Programming Language and converted to an executable file by PyInstaller. My goal is to be as helpful as possible. I was first created on February 23, 2021. The current iteration of me was created April-May 2022.")
+            ASSISTANTFuncs.respond("My name is Jade and i'm a Virtual Assistant for your computer's desktop. I'm written in the Python Programming Language and converted to an executable file by PyInstaller. My goal is to be as helpful as possible. I was made by a teenager and I was first created on February 23, 2021. The current iteration of me was created April-May 2022.")
             ASSISTANTFuncs.respond("Enter 'jade website' to view my inter-web space.")
         
         elif ASSISTANTFuncs.containsAny(EI, ["thanks", "thank you"]) == True:
@@ -572,7 +596,7 @@ class MAINFuncs:
             window_small.listWidget.clear()
 
         elif ASSISTANTFuncs.containsAny(EI, ["jade website", "your website", "jade site", "your site"]) == True:
-            webbrowser.open("https://nfoert.pythonanywhere.com/jadesite")
+            webbrowser.open("https://nofoert.wixsite.com/jade")
 
         elif ASSISTANTFuncs.containsAny(EI, ["website", "site"]) == True:
             EI = EI.replace("website ", "")
@@ -593,6 +617,9 @@ class MAINFuncs:
         elif ASSISTANTFuncs.containsAll(EI, ["your", "creator"]) == True:
             ASSISTANTFuncs.respond("My creator is Noah Foertmeyer.")
 
+        elif ASSISTANTFuncs.containsAll(EI, ["meaning", "of", "life"]) == True:
+            ASSISTANTFuncs.respond("That's up to you to figure out.")
+
         elif ASSISTANTFuncs.containsAny(EI, ["sorry", "apologies"]) == True:
             ASSISTANTFuncs.respond("That's all right.")
 
@@ -600,8 +627,8 @@ class MAINFuncs:
             #UIFuncs.openJadeLauncherAction()
 
         elif ASSISTANTFuncs.containsAny(EI, ["changelog"]) == True:
-            ASSISTANTFuncs.respond("I'll take you to the changelogs.")
-            webbrowser.open("https://nfoert.pythonanywhere.com/jadesite/allposts/?category=changelog&")
+            ASSISTANTFuncs.respond("I'll take you to the changelog.")
+            webbrowser.open("https://nofoert.wixsite.com/jade/blog/categories/changelogs")
 
         elif ASSISTANTFuncs.containsAll(EI, ["what", "time"]) == True:
             now = datetime.datetime.now()
@@ -663,20 +690,115 @@ class MAINFuncs:
             ASSISTANTFuncs.respond("Please choose the size you want me to change to.")
             UIFuncs.sizeButton()
 
-        elif ASSISTANTFuncs.containsAll(EI, ["how", "add", "apps"]) == True: #Thanks to mfoert
-            ASSISTANTFuncs.respond("I'll show you the tutorial on how to add apps")
-            webbrowser.open("https://nfoert.pythonanywhere.com/jadesite/post/?L:addAppJA&")
+        elif ASSISTANTFuncs.containsAny(EI, ["unmute", "un mute", "make noise"]) == True:
+            window_main.mute.setChecked(False)
+            ASSISTANTFuncs.respond("I'm not muted anymore.")
 
-        elif ASSISTANTFuncs.containsAny(EI, ["get out", "get off"]) == True: #Thanks to efoert
-            ASSISTANTFuncs.respond("Then why did you even install me, huh?")
+        elif ASSISTANTFuncs.containsAny(EI, ["mute", "quiet", "shh", "shhh", "shush"]) == True:
+            window_main.mute.setChecked(True)
+            ASSISTANTFuncs.respond("I muted myself.")
+
         
-        #If nothing else, hits wolfram alpha. This triggers the thread.
+        
+        #If nothing else, try Jade Apps, then hit wolfram alpha. This triggers the thread.
         else:
-            if jadeQandAThread.is_alive() == True:
-                wolframInput = EI
+            print("Trying Jade Apps")
+            # Thanks to Tim's answer here https://stackoverflow.com/questions/3906137/why-cant-i-call-read-twice-on-an-open-file
+            window_main.submit.setEnabled(False)
+            window_main.submit.setText("Loading Jade Apps...")
+                
+            window_medium.submit.setEnabled(False)
+            window_medium.submit.setText("Loading Jade Apps...")
 
-            else:
-                ASSISTANTFuncs.respond("It looks like the thread for Jade Q&A has stopped. Please restart me by entering 'restart'.")
+            window_small.submit.setEnabled(False)
+            window_small.submit.setText("Loading Jade Apps...")
+
+            #ACK IG TODO:
+            JadeAppsLocation = TruePath
+            JadeAppsLocation.replace(r"\apps\jadeassistant", "")
+            JadeAppsLocation = JadeAppsLocation + "jadeapps\\Jade Apps.exe"
+            #ACK IG TODO:
+            
+            try:
+                jadeAppsData = open("../jadeAppsData.txt", "r")
+                jadeAppsData.close()
+            except FileNotFoundError:
+                print("Jade App's data file was not found")
+                wolframInput = EI
+                return False
+            try: # Check both ways since path is different if it's either been opened by Jade Launcher or just double-clicked
+
+                subprocess.Popen(["./apps/jadeapps/Jade Apps.exe", "analyse", f"{EI}"])
+            except FileNotFoundError:
+                try:
+                    subprocess.Popen(["../jadeapps/Jade Apps.exe", "analyse", f"{EI}"])
+
+                except FileNotFoundError:
+                    ASSISTANTFuncs.respond("Jade Apps is not installed! Please install it using the Jade Launcher.")
+                    wolframInput = EI
+                    return False
+            sleep(1.5)
+            while True:
+                jadeAppsData = open("../jadeAppsData.txt", "r")
+                fileRead = jadeAppsData.read()
+                if fileRead == "no data":
+                    print("Jade Apps found no data")
+                    jadeAppsData.close()
+                    
+                    if jadeQandAThread.is_alive() == True:
+                        wolframInput = EI
+
+                    else:
+                        ASSISTANTFuncs.respond("It looks like the thread for Jade Q&A has stopped. Please restart me by entering 'restart'.")
+                    
+                    break
+
+                elif fileRead == "loading":
+                    print(f"jade apps is loading '{fileRead}'")
+                    window_main.submit.setEnabled(False)
+                    window_main.submit.setText("Loading Jade Apps...")
+                        
+                    window_medium.submit.setEnabled(False)
+                    window_medium.submit.setText("Loading Jade Apps...")
+
+                    window_small.submit.setEnabled(False)
+                    window_small.submit.setText("Loading Jade Apps...")
+
+                    jadeAppsData.close()
+                    sleep(0.2)
+
+                elif fileRead == "ui":
+                    print("That Jade Apps request opened a UI")
+                    jadeAppsData.close()
+                    window_main.submit.setEnabled(True)
+                    window_main.submit.setText("Submit")
+                    window_main.submit.setShortcut("Return")
+
+                    window_medium.submit.setEnabled(True)
+                    window_medium.submit.setText("Submit")
+                    window_medium.submit.setShortcut("Return")
+
+                    window_small.submit.setEnabled(True)
+                    window_small.submit.setText("Submit")
+                    window_small.submit.setShortcut("Return")
+                    break
+                
+                else:
+                    print(f"Jade Apps got a result '{fileRead}'")
+                    ASSISTANTFuncs.respond(fileRead)
+                    jadeAppsData.close()
+                    window_main.submit.setEnabled(True)
+                    window_main.submit.setText("Submit")
+                    window_main.submit.setShortcut("Return")
+
+                    window_medium.submit.setEnabled(True)
+                    window_medium.submit.setText("Submit")
+                    window_medium.submit.setShortcut("Return")
+
+                    window_small.submit.setEnabled(True)
+                    window_small.submit.setText("Submit")
+                    window_small.submit.setShortcut("Return")
+                    break
 
     def writeVersionFile():
         global version_MAJOR
@@ -684,7 +806,7 @@ class MAINFuncs:
         global version_PATCH
         print("Wrting version file...")
         try:
-            versionFile = open("JadeAssistantVersion.txt", "w")
+            versionFile = open(f"{TruePath}JadeAssistantVersion.txt", "w")
             versionFile.write(f"{version_MAJOR}\n{version_MINOR}\n{version_PATCH}")
             versionFile.close()
         except:
@@ -706,6 +828,7 @@ class THREADFuncs:
         global appActive
         global speakLoopList
         global killThreads
+        global speaker
         while appActive == True:
             sleep(0.2) # Stop the thread from stopping on size change
             if appActive == False:
@@ -716,8 +839,7 @@ class THREADFuncs:
                 if platform.system() == "Windows":
                     print(f"Speaking: {speakLoopList[0]}")
                     try:
-                        pyttsx3Engine.say(speakLoopList[0])
-                        pyttsx3Engine.runAndWait()
+                        speaker.Speak(speakLoopList[0])
                         speakLoopList.remove(speakLoopList[0])
                         sleep(0.25)
 
@@ -753,14 +875,14 @@ class THREADFuncs:
             sleep(0.2) # Stop the thread from stopping on size change
             if wolframInput != "":
                 
-                window_main.submit.setEnabled(False)
-                window_main.submit.setText("Loading...")
+                guiLoopList.append("window_main.submit.setEnabled(False)")
+                guiLoopList.append("window_main.submit.setText('Loading...')")
                 
-                window_medium.submit.setEnabled(False)
-                window_medium.submit.setText("Loading...")
+                guiLoopList.append("window_medium.submit.setEnabled(False)")
+                guiLoopList.append("window_medium.submit.setText('Loading...')")
 
-                window_small.submit.setEnabled(False)
-                window_small.submit.setText("Loading...")
+                guiLoopList.append("window_small.submit.setEnabled(False)")
+                guiLoopList.append("window_small.submit.setText('Loading...')")
 
 
                 print(f"Running Jade Question and Answer with input {wolframInput}")
@@ -773,32 +895,33 @@ class THREADFuncs:
                     ASSISTANTFuncs.respond(f"{WolframAlphaAnswer}")
                     wolframInput = ""
                     
-                    window_main.submit.setEnabled(True)
-                    window_main.submit.setText("Submit")
-                    window_main.submit.setShortcut("Return")
+                    guiLoopList.append("window_main.submit.setEnabled(True)")
+                    guiLoopList.append("window_main.submit.setText('Submit')")
+                    guiLoopList.append("window_main.submit.setShortcut('Return')")
 
-                    window_medium.submit.setEnabled(True)
-                    window_medium.submit.setText("Submit")
-                    window_medium.submit.setShortcut("Return")
+                    guiLoopList.append("window_medium.submit.setEnabled(True)")
+                    guiLoopList.append("window_medium.submit.setText('Submit')")
+                    guiLoopList.append("window_medium.submit.setShortcut('Return')")
 
-                    window_small.submit.setEnabled(True)
-                    window_small.submit.setText("Submit")
-                    window_small.submit.setShortcut("Return")
+                    guiLoopList.append("window_small.submit.setEnabled(True)")
+                    guiLoopList.append("window_small.submit.setText('Submit')")
+                    guiLoopList.append("window_small.submit.setShortcut('Return')")
 
                 except StopIteration:
                     ASSISTANTFuncs.respondRandom(["I don't think I can help with that.", "I don't understand.", "I can't help with that.", "Excuse me?", "Pardon me?", "What?"])
                     wolframInput = ""
-                    window_main.submit.setEnabled(True)
-                    window_main.submit.setText("Submit")
-                    window_main.submit.setShortcut("Return")
+                    guiLoopList.append("window_main.submit.setEnabled(True)")
+                    guiLoopList.append("window_main.submit.setText('Submit')")
+                    guiLoopList.append("window_main.submit.setShortcut('Return')")
 
-                    window_medium.submit.setEnabled(True)
-                    window_medium.submit.setText("Submit")
-                    window_medium.submit.setShortcut("Return")
+                    guiLoopList.append("window_medium.submit.setEnabled(True)")
+                    guiLoopList.append("window_medium.submit.setText('Submit')")
+                    guiLoopList.append("window_medium.submit.setShortcut('Return')")
 
-                    window_small.submit.setEnabled(True)
-                    window_small.submit.setText("Submit")
-                    window_small.submit.setShortcut("Return")
+                    guiLoopList.append("window_small.submit.setEnabled(True)")
+                    guiLoopList.append("window_small.submit.setText('Submit')")
+                    guiLoopList.append("window_small.submit.setShortcut('Return')")
+
 
             elif window_main.isVisible() == False and window_medium.isVisible() == False and window_small.isVisible() == False and window_mini.isVisible() == False and window_sizeSelect.isVisible() == False:
                 break
@@ -898,7 +1021,6 @@ class UIFuncs:
     def stopSpeaking():
         global speakLoopList
         speakLoopList.clear()
-        pyttsx3Engine.stop()
 
     def checkForEditContents():
         global wolframInput
@@ -989,6 +1111,16 @@ class UIFuncs:
         window_sizeSelect.show()
         window_mini.hide()
 
+    def muteUpdate():
+        global speaker
+        if window_main.mute.isChecked():
+            speaker.Pause()
+            print("Now muted!")
+
+        else:
+            speaker.Resume()
+            print("Un muted!")
+
 
 
 
@@ -998,6 +1130,7 @@ window_main.info.hide()
 window_main.input.textChanged.connect(UIFuncs.checkForEditContents)
 #window_main.menu.clicked.connect(UIFuncs.betaButton) Menu button removed
 #window_main.actionOpenJadeLauncher.triggered.connect(UIFuncs.openJadeLauncherAction)
+window_main.mute.stateChanged.connect(UIFuncs.muteUpdate)
 
 window_main.actionChange_Size.triggered.connect(UIFuncs.sizeButton)
 #window_medium.size.clicked.connect(UIFuncs.sizeButton)
@@ -1032,7 +1165,7 @@ def guiLoop():
 
 guiLoopTimer = QTimer()
 guiLoopTimer.timeout.connect(guiLoop)
-guiLoopTimer.start(1000)
+guiLoopTimer.start(1)
 
 MAINFuncs.writeVersionFile()
 
@@ -1045,5 +1178,15 @@ jadeQandAThread.start()
 
 ASSISTANTFuncs.startupGreeting()
 
+#Check both ways since path is different if it's either been opened by Jade Launcher or just double-clicked
+if Path("./apps/jadeapps/Jade Apps.exe").is_file():
+    print("Jade Apps is installed.")
+
+else:
+    if Path("../jadeapps/Jade Apps.exe").is_file():
+        print("Jade Apps is installed.")
+
+    else:
+        ASSISTANTFuncs.respond("Jade Apps is not installed. Consider downloading it, and I'll be able to help you with a lot more.")
 
 app.exec()

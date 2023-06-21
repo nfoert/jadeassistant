@@ -6,21 +6,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>171</width>
+    <width>178</width>
     <height>118</height>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>171</width>
-    <height>118</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>171</width>
-    <height>118</height>
-   </size>
   </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
@@ -35,51 +23,39 @@
   <property name="windowOpacity">
    <double>0.500000000000000</double>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QMainWindow {
-	border-image: url(:/images/assets/background.png) 0 0 0 0 stretch stretch;
-}
-</string>
-  </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item alignment="Qt::AlignHCenter">
-       <widget class="QLabel" name="label">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>120</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="../assets.qrc">:/images/assets/jadeAssistant.png</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="expand">
-        <property name="text">
-         <string>Expand</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-   </layout>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>10</y>
+      <width>91</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap resource="../assets.qrc">:/images/assets/jadeAssistant.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="expand">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>80</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Expand</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources>

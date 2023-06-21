@@ -3,3 +3,7 @@ build
 dist
 __pycache__
 JadeAssistantVersion.txt
+appPath.bak
+appPath.dat
+appPath.dir
+appPath.db
